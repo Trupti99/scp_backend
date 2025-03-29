@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import uuid
+import requests
 
 load_dotenv()
 
@@ -73,6 +74,30 @@ def generate_shareable_link(filename):
 @app.route('/', methods=['GET'])
 def home():
     return "Cloud File Sharing App is running 🚀", 200
+
+# --- New API: Proxy to Job Search App's Resume Match API ---
+@app.route('/analyze-resume', methods=['POST'])
+def analyze_resume_text():
+    """
+    Accepts raw resume text and sends it to the Job Search App's
+    /api/resume-match API to get recommended roles.
+    """
+    try:
+        data = request.get_json()
+        resume_text = data.get('resume', '')
+
+        if not resume_text.strip():
+            return jsonify({'error': 'Resume text is empty'}), 400
+
+        # Forward to Job Search App
+        job_api_url = 'https://scp-backend-m0uu.onrender.com/api/resume-match'
+        response = requests.post(job_api_url, json={'resume': resume_text})
+
+        return jsonify(response.json()), response.status_code
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
