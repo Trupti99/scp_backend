@@ -69,6 +69,10 @@ def generate_shareable_link(filename):
         return jsonify({'shareable_link': presigned_url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/', methods=['GET'])
+def home():
+    return "Cloud File Sharing App is running 🚀", 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
